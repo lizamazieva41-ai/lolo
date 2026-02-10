@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cellcard eSIM Exploitation Platform - Test Interface</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            color: #333;
+        }
+        .form-group {
+            margin: 10px 0;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select, button {
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 100%;
+            max-width: 300px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            max-width: 150px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .result {
+            margin: 10px 0;
+            padding: 10px;
+            background: #f8f9fa;
+            border-left: 4px solid #007bff;
+            white-space: pre-wrap;
+        }
+        .error {
+            border-left-color: #dc3545;
+            background: #f8d7da;
+        }
+        .success {
+            border-left-color: #28a745;
+            background: #d4edda;
+        }
+        .token-display {
+            background: #e9ecef;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            word-break: break-all;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Cellcard eSIM Exploitation Platform - Test Interface</h1>
+
+    <div class="token-display" id="tokenDisplay">
+        <strong>Access Token:</strong> <span id="accessToken">Not logged in</span>
+    </div>
+
+    <div class="grid">
+        <!-- Authentication Section -->
+        <div class="container">
+            <h2>Authentication</h2>
+
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" value="test@example.com">
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" value="password123">
+            </div>
+
+            <div class="form-group">
+                <label for="phone">Phone (for register):</label>
+                <input type="tel" id="phone" value="+85512345678">
+            </div>
+
+            <button onclick="register()">Register</button>
+            <button onclick="login()">Login</button>
+            <button onclick="logout()">Logout</button>
+
+            <div id="authResult" class="result"></div>
+        </div>
+
+        <!-- eSIM Plans Section -->
+        <div class="container">
+            <h2>eSIM Plans</h2>
+
+            <button onclick="getPlans()">Get Available Plans</button>
+
+            <div id="plansResult" class="result"></div>
+        </div>
+
+        <!-- Purchase eSIM Section -->
+        <div class="container">
+            <h2>Purchase eSIM</h2>
+
+            <div class="form-group">
+                <label for="planId">Plan ID:</label>
+                <input type="number" id="planId" value="1">
+            </div>
+
+            <div class="form-group">
+                <label for="paymentMethod">Payment Method:</label>
+                <select id="paymentMethod">
+                    <option value="wingpay">WingPay</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="paymentPhone">Payment Phone:</label>
+                <input type="tel" id="paymentPhone" value="+85512345678">
+            </div>
+
+            <button onclick="purchaseESIM()">Purchase eSIM</button>
+
+            <div id="purchaseResult" class="result"></div>
+        </div>
+
+        <!-- Activate eSIM Section -->
+        <div class="container">
+            <h2>Activate eSIM</h2>
+
+            <div class="form-group">
+                <label for="transactionId">Transaction ID:</label>
+                <input type="text" id="transactionId" placeholder="Enter transaction ID">
+            </div>
+
+            <button onclick="activateESIM()">Activate eSIM</button>
+
+            <div id="activateResult" class="result"></div>
+        </div>
+
+        <!-- Proxy Testing Section -->
+        <div class="container">
+            <h2>Proxy Testing</h2>
+
+            <div class="form-group">
+                <label for="proxyEndpoint">Endpoint:</label>
+                <input type="text" id="proxyEndpoint" value="/auth/verify">
+            </div>
+
+            <div class="form-group">
+                <label for="proxyMethod">Method:</label>
+                <select id="proxyMethod">
+                    <option value="GET">GET</option>
+                    <option value="POST">POST</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="proxyData">Data (JSON):</label>
+                <textarea id="proxyData" rows="3">{"phone": "+85512345678", "password": "test"}</textarea>
+            </div>
+
+            <button onclick="testProxy()">Test Proxy</button>
+
+            <div id="proxyResult" class="result"></div>
+        </div>
+
+        <!-- Webhook Testing Section -->
+        <div class="container">
+            <h2>Webhook Testing</h2>
+
+            <div class="form-group">
+                <label for="webhookType">Webhook Type:</label>
+                <select id="webhookType">
+                    <option value="esim/status">eSIM Status</option>
+                    <option value="activation/complete">Activation Complete</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="webhookData">Data (JSON):</label>
+                <textarea id="webhookData" rows="3">{"esim_id": 1, "status": "activated"}</textarea>
+            </div>
+
+            <button onclick="testWebhook()">Send Webhook</button>
+
+            <div id="webhookResult" class="result"></div>
+        </div>
+    </div>
+
+    <script>
+        let accessToken = localStorage.getItem('accessToken') || '';
+        let refreshToken = localStorage.getItem('refreshToken') || '';
+
+        function updateTokenDisplay() {
+            document.getElementById('accessToken').textContent = accessToken || 'Not logged in';
+        }
+
+        updateTokenDisplay();
+
+        async function makeRequest(url, options = {}) {
+            const defaultOptions = {
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...options.headers
+                }
+            };
+
+            if (accessToken && !options.skipAuth) {
+                defaultOptions.headers['Authorization'] = `Bearer ${accessToken}`;
+            }
+
+            const response = await fetch(url, { ...defaultOptions, ...options });
+            const data = await response.json();
+
+            return { response, data };
+        }
+
+        async function register() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const phone = document.getElementById('phone').value;
+
+            try {
+                const { response, data } = await makeRequest('/api/auth/register', {
+                    method: 'POST',
+                    body: JSON.stringify({ email, password, phone }),
+                    skipAuth: true
+                });
+
+                document.getElementById('authResult').className = response.ok ? 'result success' : 'result error';
+                document.getElementById('authResult').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('authResult').className = 'result error';
+                document.getElementById('authResult').textContent = `Error: ${error.message}`;
+            }
+        }
+
+        async function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const { response, data } = await makeRequest('/api/auth/login', {
+                    method: 'POST',
+                    body: JSON.stringify({ email, password }),
+                    skipAuth: true
+                });
+
+                if (response.ok) {
+                    accessToken = data.accessToken;
+                    refreshToken = data.refreshToken;
+                    localStorage.setItem('accessToken', accessToken);
+                    localStorage.setItem('refreshToken', refreshToken);
+                    updateTokenDisplay();
+                }
+
+                document.getElementById('authResult').className = response.ok ? 'result success' : 'result error';
+                document.getElementById('authResult').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('authResult').className = 'result error';
+                document.getElementById('authResult').textContent = `Error: ${error.message}`;
+            }
+        }
+
+        async function logout() {
+            try {
+                const { response, data } = await makeRequest('/api/auth/logout', {
+                    method: 'POST'
+                });
+
+                if (response.ok) {
+                    accessToken = '';
+                    refreshToken = '';
+                    localStorage.removeItem('accessToken');
+                    localStorage.removeItem('refreshToken');
+                    updateTokenDisplay();
+                }
+
+                document.getElementById('authResult').className = response.ok ? 'result success' : 'result error';
+                document.getElementById('authResult').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('authResult').className = 'result error';
+                document.getElementById('authResult').textContent = `Error: ${error.message}`;
+            }
+        }
+
+        async function getPlans() {
+            try {
+                const { response, data } = await makeRequest('/api/esim/plans');
+
+                document.getElementById('plansResult').className = response.ok ? 'result success' : 'result error';
+                document.getElementById('plansResult').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('plansResult').className = 'result error';
+                document.getElementById('plansResult').textContent = `Error: ${error.message}`;
+            }
+        }
+
+        async function purchaseESIM() {
+            const planId = document.getElementById('planId').value;
+            const paymentMethod = document.getElementById('paymentMethod').value;
+            const paymentPhone = document.getElementById('paymentPhone').value;
+
+            try {
+                const { response, data } = await makeRequest('/api/esim/purchase', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        planId: parseInt(planId),
+                        paymentMethod,
+                        paymentInfo: { phone: paymentPhone }
+                    })
+                });
+
+                document.getElementById('purchaseResult').className = response.ok ? 'result success' : 'result error';
+                document.getElementById('purchaseResult').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('purchaseResult').className = 'result error';
+                document.getElementById('purchaseResult').textContent = `Error: ${error.message}`;
+            }
+        }
+
+        async function activateESIM() {
+            const transactionId = document.getElementById('transactionId').value;
+
+            try {
+                const { response, data } = await makeRequest(`/api/esim/activate/${transactionId}`);
+
+                document.getElementById('activateResult').className = response.ok ? 'result success' : 'result error';
+                document.getElementById('activateResult').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('activateResult').className = 'result error';
+                document.getElementById('activateResult').textContent = `Error: ${error.message}`;
+            }
+        }
+
+        async function testProxy() {
+            const endpoint = document.getElementById('proxyEndpoint').value;
+            const method = document.getElementById('proxyMethod').value;
+            const data = document.getElementById('proxyData').value;
+
+            try {
+                const { response, data: result } = await makeRequest('/api/proxy/test/general', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        url: endpoint,
+                        method,
+                        data: JSON.parse(data || '{}')
+                    })
+                });
+
+                document.getElementById('proxyResult').className = response.ok ? 'result success' : 'result error';
+                document.getElementById('proxyResult').textContent = JSON.stringify(result, null, 2);
+            } catch (error) {
+                document.getElementById('proxyResult').className = 'result error';
+                document.getElementById('proxyResult').textContent = `Error: ${error.message}`;
+            }
+        }
+
+        async function testWebhook() {
+            const type = document.getElementById('webhookType').value;
+            const data = document.getElementById('webhookData').value;
+
+            try {
+                const { response, data: result } = await makeRequest(`/api/webhooks/${type}`, {
+                    method: 'POST',
+                    body: data,
+                    skipAuth: true
+                });
+
+                document.getElementById('webhookResult').className = response.ok ? 'result success' : 'result error';
+                document.getElementById('webhookResult').textContent = JSON.stringify(result, null, 2);
+            } catch (error) {
+                document.getElementById('webhookResult').className = 'result error';
+                document.getElementById('webhookResult').textContent = `Error: ${error.message}`;
+            }
+        }
+
+        // Check if user is already logged in on page load
+        if (accessToken) {
+            updateTokenDisplay();
+        }
+    </script>
+</body>
+</html>
